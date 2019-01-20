@@ -1,6 +1,7 @@
 // Copyright (C) 2014 Trymph Inc.
 package com.google.gson.functional;
 
+import java.lang.Throwable;
 import java.io.IOException;
 
 import junit.framework.TestCase;
@@ -12,14 +13,9 @@ import com.google.gson.annotations.SerializedName;
 public final class ThrowableFunctionalTest extends TestCase {
   private final Gson gson = new Gson();
 
-  public void testExceptionWithoutCause() {
-    RuntimeException e = new RuntimeException("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", RuntimeException.class);
-    assertEquals("hello", e.getMessage());
-  }
+  public void testExceptionWithoutCause() throws Exception {
+	this.throwableFunctionalTestTestWithoutCauseTemplate(RuntimeException.class);
+}
 
   public void testExceptionWithCause() {
     Exception e = new Exception("top level", new IOException("io error"));
@@ -38,14 +34,9 @@ public final class ThrowableFunctionalTest extends TestCase {
     assertTrue(json.contains("{\"my_custom_name\":\"myCustomMessageValue\""));
   }
 
-  public void testErrorWithoutCause() {
-    OutOfMemoryError e = new OutOfMemoryError("hello");
-    String json = gson.toJson(e);
-    assertTrue(json.contains("hello"));
-
-    e = gson.fromJson("{'detailMessage':'hello'}", OutOfMemoryError.class);
-    assertEquals("hello", e.getMessage());
-  }
+  public void testErrorWithoutCause() throws Exception {
+	this.throwableFunctionalTestTestWithoutCauseTemplate(OutOfMemoryError.class);
+}
 
   public void testErrornWithCause() {
     Error e = new Error("top level", new IOException("io error"));
@@ -62,4 +53,13 @@ public final class ThrowableFunctionalTest extends TestCase {
   private static final class MyException extends Throwable {
     @SerializedName("my_custom_name") String myCustomMessage = "myCustomMessageValue";
   }
+
+public <TThrowable extends Throwable> void throwableFunctionalTestTestWithoutCauseTemplate(
+		Class<TThrowable> clazzTThrowable) throws Exception {
+	TThrowable e = clazzTThrowable.getDeclaredConstructor(String.class).newInstance("hello");
+	String json = gson.toJson(e);
+	assertTrue(json.contains("hello"));
+	e = (TThrowable) gson.fromJson("{'detailMessage':'hello'}", clazzTThrowable);
+	assertEquals("hello", e.getMessage());
+}
 }

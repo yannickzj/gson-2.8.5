@@ -198,45 +198,17 @@ public class JsonReaderPathTest {
     assertEquals("$[1]", reader.getPath());
   }
 
-  @Test public void arrayOfObjects() throws IOException {
-    JsonReader reader = factory.create("[{},{},{}]");
-    reader.beginArray();
-    assertEquals("$[0]", reader.getPath());
-    reader.beginObject();
-    assertEquals("$[0].", reader.getPath());
-    reader.endObject();
-    assertEquals("$[1]", reader.getPath());
-    reader.beginObject();
-    assertEquals("$[1].", reader.getPath());
-    reader.endObject();
-    assertEquals("$[2]", reader.getPath());
-    reader.beginObject();
-    assertEquals("$[2].", reader.getPath());
-    reader.endObject();
-    assertEquals("$[3]", reader.getPath());
-    reader.endArray();
-    assertEquals("$", reader.getPath());
-  }
+  @Test
+public void arrayOfObjects() throws Exception {
+	this.jsonReaderPathTestArrayOfTemplate(new JsonReaderPathTestArrayOfObjectsAdapterImpl(), "[{},{},{}]", "$[0].",
+			"$[1].", "$[2].");
+}
 
-  @Test public void arrayOfArrays() throws IOException {
-    JsonReader reader = factory.create("[[],[],[]]");
-    reader.beginArray();
-    assertEquals("$[0]", reader.getPath());
-    reader.beginArray();
-    assertEquals("$[0][0]", reader.getPath());
-    reader.endArray();
-    assertEquals("$[1]", reader.getPath());
-    reader.beginArray();
-    assertEquals("$[1][0]", reader.getPath());
-    reader.endArray();
-    assertEquals("$[2]", reader.getPath());
-    reader.beginArray();
-    assertEquals("$[2][0]", reader.getPath());
-    reader.endArray();
-    assertEquals("$[3]", reader.getPath());
-    reader.endArray();
-    assertEquals("$", reader.getPath());
-  }
+  @Test
+public void arrayOfArrays() throws Exception {
+	this.jsonReaderPathTestArrayOfTemplate(new JsonReaderPathTestArrayOfArraysAdapterImpl(), "[[],[],[]]", "$[0][0]",
+			"$[1][0]", "$[2][0]");
+}
 
   enum Factory {
     STRING_READER {
@@ -253,4 +225,51 @@ public class JsonReaderPathTest {
 
     abstract JsonReader create(String data);
   }
+
+public void jsonReaderPathTestArrayOfTemplate(JsonReaderPathTestArrayOfAdapter adapter, String string1, String string2,
+		String string3, String string4) throws Exception {
+	JsonReader reader = factory.create(string1);
+	reader.beginArray();
+	assertEquals("$[0]", reader.getPath());
+	adapter.begin(reader);
+	assertEquals(string2, reader.getPath());
+	adapter.end(reader);
+	assertEquals("$[1]", reader.getPath());
+	adapter.begin(reader);
+	assertEquals(string3, reader.getPath());
+	adapter.end(reader);
+	assertEquals("$[2]", reader.getPath());
+	adapter.begin(reader);
+	assertEquals(string4, reader.getPath());
+	adapter.end(reader);
+	assertEquals("$[3]", reader.getPath());
+	reader.endArray();
+	assertEquals("$", reader.getPath());
+}
+
+interface JsonReaderPathTestArrayOfAdapter {
+	void begin(JsonReader jsonReader1) throws IOException;
+
+	void end(JsonReader jsonReader1) throws IOException;
+}
+
+class JsonReaderPathTestArrayOfObjectsAdapterImpl implements JsonReaderPathTestArrayOfAdapter {
+	public void begin(JsonReader reader) throws IOException {
+		reader.beginObject();
+	}
+
+	public void end(JsonReader reader) throws IOException {
+		reader.endObject();
+	}
+}
+
+class JsonReaderPathTestArrayOfArraysAdapterImpl implements JsonReaderPathTestArrayOfAdapter {
+	public void begin(JsonReader reader) throws IOException {
+		reader.beginArray();
+	}
+
+	public void end(JsonReader reader) throws IOException {
+		reader.endArray();
+	}
+}
 }

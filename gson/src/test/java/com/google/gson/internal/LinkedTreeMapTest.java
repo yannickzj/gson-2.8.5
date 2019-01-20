@@ -80,16 +80,8 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testPutOverrides() throws Exception {
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
-    assertNull(map.put("d", "donut"));
-    assertNull(map.put("e", "eclair"));
-    assertNull(map.put("f", "froyo"));
-    assertEquals(3, map.size());
-
-    assertEquals("donut", map.get("d"));
-    assertEquals("donut", map.put("d", "done"));
-    assertEquals(3, map.size());
-  }
+	LinkedTreeMapTestTestPutOverridesTemplate.linkedTreeMapTestTestPutOverridesTemplate(LinkedTreeMap.class);
+}
 
   public void testEmptyStringValues() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
@@ -99,20 +91,8 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testLargeSetOfRandomKeys() throws Exception {
-    Random random = new Random(1367593214724L);
-    LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
-    String[] keys = new String[1000];
-    for (int i = 0; i < keys.length; i++) {
-      keys[i] = Integer.toString(Math.abs(random.nextInt()), 36) + "-" + i;
-      map.put(keys[i], "" + i);
-    }
-
-    for (int i = 0; i < keys.length; i++) {
-      String key = keys[i];
-      assertTrue(map.containsKey(key));
-      assertEquals("" + i, map.get(key));
-    }
-  }
+	LinkedTreeMapTestTestTemplate.linkedTreeMapTestTestTemplate(LinkedTreeMap.class);
+}
 
   public void testClear() {
     LinkedTreeMap<String, String> map = new LinkedTreeMap<String, String>();
@@ -125,20 +105,8 @@ public final class LinkedTreeMapTest extends TestCase {
   }
 
   public void testEqualsAndHashCode() throws Exception {
-    LinkedTreeMap<String, Integer> map1 = new LinkedTreeMap<String, Integer>();
-    map1.put("A", 1);
-    map1.put("B", 2);
-    map1.put("C", 3);
-    map1.put("D", 4);
-
-    LinkedTreeMap<String, Integer> map2 = new LinkedTreeMap<String, Integer>();
-    map2.put("C", 3);
-    map2.put("B", 2);
-    map2.put("D", 4);
-    map2.put("A", 1);
-
-    MoreAsserts.assertEqualsAndHashCode(map1, map2);
-  }
+	LinkedTreeMapTestTestEqualsAndHashCodeTemplate.linkedTreeMapTestTestEqualsAndHashCodeTemplate(LinkedTreeMap.class);
+}
 
   private <T> void assertIterationOrder(Iterable<T> actual, T... expected) {
     ArrayList<T> actualList = new ArrayList<T>();

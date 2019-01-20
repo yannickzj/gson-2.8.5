@@ -35,16 +35,14 @@ public class VersionExclusionStrategyTest extends TestCase {
   }
 
   public void testClassAndFieldAreBehindInVersion() throws Exception {
-    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION + 1);
-    assertFalse(excluder.excludeClass(MockObject.class, true));
-    assertFalse(excluder.excludeField(MockObject.class.getField("someField"), true));
-  }
+	this.versionExclusionStrategyTestTestClassAndFieldAreInVersionTemplate(
+			new VersionExclusionStrategyTestTestClassAndFieldAreBehindInVersionAdapterImpl(), VERSION + 1);
+}
 
   public void testClassAndFieldAreAheadInVersion() throws Exception {
-    Excluder excluder = Excluder.DEFAULT.withVersion(VERSION - 1);
-    assertTrue(excluder.excludeClass(MockObject.class, true));
-    assertTrue(excluder.excludeField(MockObject.class.getField("someField"), true));
-  }
+	this.versionExclusionStrategyTestTestClassAndFieldAreInVersionTemplate(
+			new VersionExclusionStrategyTestTestClassAndFieldAreAheadInVersionAdapterImpl(), VERSION - 1);
+}
 
   @Since(VERSION)
   private static class MockObject {
@@ -52,4 +50,29 @@ public class VersionExclusionStrategyTest extends TestCase {
     @Since(VERSION)
     public final int someField = 0;
   }
+
+public void versionExclusionStrategyTestTestClassAndFieldAreInVersionTemplate(
+		VersionExclusionStrategyTestTestClassAndFieldAreInVersionAdapter adapter, double d1) throws Exception {
+	Excluder excluder = Excluder.DEFAULT.withVersion(d1);
+	adapter.assertAction(excluder.excludeClass(MockObject.class, true));
+	adapter.assertAction(excluder.excludeField(MockObject.class.getField("someField"), true));
+}
+
+interface VersionExclusionStrategyTestTestClassAndFieldAreInVersionAdapter {
+	void assertAction(boolean b1);
+}
+
+class VersionExclusionStrategyTestTestClassAndFieldAreBehindInVersionAdapterImpl
+		implements VersionExclusionStrategyTestTestClassAndFieldAreInVersionAdapter {
+	public void assertAction(boolean b1) {
+		assertFalse(b1);
+	}
+}
+
+class VersionExclusionStrategyTestTestClassAndFieldAreAheadInVersionAdapterImpl
+		implements VersionExclusionStrategyTestTestClassAndFieldAreInVersionAdapter {
+	public void assertAction(boolean b1) {
+		assertTrue(b1);
+	}
+}
 }

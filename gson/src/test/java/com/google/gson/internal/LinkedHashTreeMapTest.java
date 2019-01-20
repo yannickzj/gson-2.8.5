@@ -80,16 +80,8 @@ public final class LinkedHashTreeMapTest extends TestCase {
   }
 
   public void testPutOverrides() throws Exception {
-    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
-    assertNull(map.put("d", "donut"));
-    assertNull(map.put("e", "eclair"));
-    assertNull(map.put("f", "froyo"));
-    assertEquals(3, map.size());
-
-    assertEquals("donut", map.get("d"));
-    assertEquals("donut", map.put("d", "done"));
-    assertEquals(3, map.size());
-  }
+	LinkedTreeMapTestTestPutOverridesTemplate.linkedTreeMapTestTestPutOverridesTemplate(LinkedHashTreeMap.class);
+}
 
   public void testEmptyStringValues() {
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
@@ -98,24 +90,9 @@ public final class LinkedHashTreeMapTest extends TestCase {
     assertEquals("", map.get("a"));
   }
 
-  // NOTE that this does not happen every time, but given the below predictable random,
-  // this test will consistently fail (assuming the initial size is 16 and rehashing
-  // size remains at 3/4)
   public void testForceDoublingAndRehash() throws Exception {
-    Random random = new Random(1367593214724L);
-    LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
-    String[] keys = new String[1000];
-    for (int i = 0; i < keys.length; i++) {
-      keys[i] = Integer.toString(Math.abs(random.nextInt()), 36) + "-" + i;
-      map.put(keys[i], "" + i);
-    }
-
-    for (int i = 0; i < keys.length; i++) {
-      String key = keys[i];
-      assertTrue(map.containsKey(key));
-      assertEquals("" + i, map.get(key));
-    }
-  }
+	LinkedTreeMapTestTestTemplate.linkedTreeMapTestTestTemplate(LinkedHashTreeMap.class);
+}
 
   public void testClear() {
     LinkedHashTreeMap<String, String> map = new LinkedHashTreeMap<String, String>();
@@ -128,20 +105,9 @@ public final class LinkedHashTreeMapTest extends TestCase {
   }
 
   public void testEqualsAndHashCode() throws Exception {
-    LinkedHashTreeMap<String, Integer> map1 = new LinkedHashTreeMap<String, Integer>();
-    map1.put("A", 1);
-    map1.put("B", 2);
-    map1.put("C", 3);
-    map1.put("D", 4);
-
-    LinkedHashTreeMap<String, Integer> map2 = new LinkedHashTreeMap<String, Integer>();
-    map2.put("C", 3);
-    map2.put("B", 2);
-    map2.put("D", 4);
-    map2.put("A", 1);
-
-    MoreAsserts.assertEqualsAndHashCode(map1, map2);
-  }
+	LinkedTreeMapTestTestEqualsAndHashCodeTemplate
+			.linkedTreeMapTestTestEqualsAndHashCodeTemplate(LinkedHashTreeMap.class);
+}
 
   public void testAvlWalker() {
     assertAvlWalker(node(node("a"), "b", node("c")),

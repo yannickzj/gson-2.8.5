@@ -16,8 +16,12 @@
 
 package com.google.gson.functional;
 
-import com.google.gson.Gson;
+import java.lang.Object;
+import java.lang.Class;
+import java.lang.reflect.Type;
 import com.google.gson.GsonBuilder;
+import java.lang.String;
+import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -28,20 +32,14 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import junit.framework.TestCase;
 
 public final class TypeAdapterPrecedenceTest extends TestCase {
   public void testNonstreamingFollowedByNonstreaming() {
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapter(Foo.class, newSerializer("serializer 1"))
-        .registerTypeAdapter(Foo.class, newSerializer("serializer 2"))
-        .registerTypeAdapter(Foo.class, newDeserializer("deserializer 1"))
-        .registerTypeAdapter(Foo.class, newDeserializer("deserializer 2"))
-        .create();
-    assertEquals("\"foo via serializer 2\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via deserializer 2", gson.fromJson("foo", Foo.class).name);
-  }
+	this.typeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingTemplate(
+			new TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapterImpl(), "deserializer 2",
+			"deserializer 1", "serializer 2", "serializer 1", "\"foo via serializer 2\"", "foo via deserializer 2");
+}
 
   public void testStreamingFollowedByStreaming() {
     Gson gson = new GsonBuilder()
@@ -103,15 +101,11 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
   }
 
   public void testNonstreamingHierarchicalFollowedByNonstreaming() {
-    Gson gson = new GsonBuilder()
-        .registerTypeHierarchyAdapter(Foo.class, newSerializer("hierarchical"))
-        .registerTypeHierarchyAdapter(Foo.class, newDeserializer("hierarchical"))
-        .registerTypeAdapter(Foo.class, newSerializer("non hierarchical"))
-        .registerTypeAdapter(Foo.class, newDeserializer("non hierarchical"))
-        .create();
-    assertEquals("\"foo via non hierarchical\"", gson.toJson(new Foo("foo")));
-    assertEquals("foo via non hierarchical", gson.fromJson("foo", Foo.class).name);
-  }
+	this.typeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingTemplate(
+			new TypeAdapterPrecedenceTestTestNonstreamingHierarchicalFollowedByNonstreamingAdapterImpl(),
+			"non hierarchical", "non hierarchical", "hierarchical", "hierarchical", "\"foo via non hierarchical\"",
+			"foo via non hierarchical");
+}
 
   private static class Foo {
     final String name;
@@ -148,4 +142,54 @@ public final class TypeAdapterPrecedenceTest extends TestCase {
       }
     };
   }
+
+public void typeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingTemplate(
+		TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapter adapter, String string1, String string2,
+		String string3, String string4, String string5, String string6) {
+	Gson gson = adapter
+			.registerTypeAdapter(adapter.registerTypeAdapter(new GsonBuilder(), Foo.class, newSerializer(string4)),
+					Foo.class, adapter.newAction1(string3))
+			.registerTypeAdapter(Foo.class, adapter.newAction(string2))
+			.registerTypeAdapter(Foo.class, newDeserializer(string1)).create();
+	assertEquals(string5, gson.toJson(new Foo("foo")));
+	assertEquals(string6, gson.fromJson("foo", Foo.class).name);
+}
+
+interface TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapter {
+	Object newAction(String string1);
+
+	Object newAction1(String string1);
+
+	GsonBuilder registerTypeAdapter(GsonBuilder gsonBuilder1, Type type1, Object object1);
+}
+
+class TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapterImpl
+		implements TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapter {
+	public Object newAction(String string1) {
+		return newDeserializer(string1);
+	}
+
+	public Object newAction1(String string1) {
+		return newSerializer(string1);
+	}
+
+	public GsonBuilder registerTypeAdapter(GsonBuilder gsonBuilder1, Type type1, Object object1) {
+		return gsonBuilder1.registerTypeAdapter(type1, object1);
+	}
+}
+
+class TypeAdapterPrecedenceTestTestNonstreamingHierarchicalFollowedByNonstreamingAdapterImpl
+		implements TypeAdapterPrecedenceTestTestNonstreamingFollowedByNonstreamingAdapter {
+	public Object newAction(String string1) {
+		return newSerializer(string1);
+	}
+
+	public Object newAction1(String string1) {
+		return newDeserializer(string1);
+	}
+
+	public GsonBuilder registerTypeAdapter(GsonBuilder gsonBuilder1, Type type1, Object object1) {
+		return gsonBuilder1.registerTypeHierarchyAdapter((Class<?>) type1, object1);
+	}
+}
 }

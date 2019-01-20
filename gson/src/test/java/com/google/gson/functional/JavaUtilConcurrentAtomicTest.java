@@ -16,10 +16,11 @@
 
 package com.google.gson.functional;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.lang.Number;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLongArray;
 
 import com.google.gson.Gson;
@@ -48,18 +49,14 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
   }
 
   public void testAtomicInteger() throws Exception {
-    AtomicInteger target = gson.fromJson("10", AtomicInteger.class);
-    assertEquals(10, target.get());
-    String json = gson.toJson(target);
-    assertEquals("10", json);
-  }
+	this.javaUtilConcurrentAtomicTestTestAtomicTemplate(new JavaUtilConcurrentAtomicTestTestAtomicIntegerAdapterImpl(),
+			AtomicInteger.class);
+}
 
   public void testAtomicLong() throws Exception {
-    AtomicLong target = gson.fromJson("10", AtomicLong.class);
-    assertEquals(10, target.get());
-    String json = gson.toJson(target);
-    assertEquals("10", json);
-  }
+	this.javaUtilConcurrentAtomicTestTestAtomicTemplate(new JavaUtilConcurrentAtomicTestTestAtomicLongAdapterImpl(),
+			AtomicLong.class);
+}
 
   public void testAtomicLongWithStringSerializationPolicy() throws Exception {
     Gson gson = new GsonBuilder()
@@ -107,4 +104,30 @@ public class JavaUtilConcurrentAtomicTest extends TestCase {
   private static class AtomicLongHolder {
     AtomicLong value;
   }
+
+public <TAtomic extends Number> void javaUtilConcurrentAtomicTestTestAtomicTemplate(
+		JavaUtilConcurrentAtomicTestTestAtomicAdapter<TAtomic> adapter, Class<TAtomic> clazzTAtomic) throws Exception {
+	TAtomic target = (TAtomic) gson.fromJson("10", clazzTAtomic);
+	assertEquals(10, adapter.get(target));
+	String json = gson.toJson(target);
+	assertEquals("10", json);
+}
+
+interface JavaUtilConcurrentAtomicTestTestAtomicAdapter<TAtomic> {
+	long get(TAtomic tAtomic1);
+}
+
+class JavaUtilConcurrentAtomicTestTestAtomicIntegerAdapterImpl
+		implements JavaUtilConcurrentAtomicTestTestAtomicAdapter<AtomicInteger> {
+	public long get(AtomicInteger target) {
+		return target.get();
+	}
+}
+
+class JavaUtilConcurrentAtomicTestTestAtomicLongAdapterImpl
+		implements JavaUtilConcurrentAtomicTestTestAtomicAdapter<AtomicLong> {
+	public long get(AtomicLong target) {
+		return target.get();
+	}
+}
 }
